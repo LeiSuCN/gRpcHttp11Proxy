@@ -82,8 +82,17 @@ public class GrpcHttp11Proxy {
      * @return
      */
     public static String getProtoPackageName(BindableService service) {
-        Class base = service.getClass().getSuperclass();
-        return base.getPackage().getName();
+            String packageName = null;
+            Class base = service.getClass().getSuperclass();
+            while (base != null) {
+                if (BindableService.class.isAssignableFrom(base) && Modifier.isAbstract(base.getModifiers())) {
+                    packageName = base.getPackage().getName();
+                    break;
+                } else {
+                    base = base.getSuperclass();
+                }
+            }
+            return packageName;
     }
 
     public static GrpcCaller getGrpcMethodCaller(Descriptors.FileDescriptor protoDescriptor, BindableService service, String uri) {
